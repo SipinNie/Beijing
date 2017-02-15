@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Beijing</title>
+	<meta charset="utf-8" />
+	<!-- 引用leaflet -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<style type="text/css">
+.map{
+	width: 600px; 
+	height: 400px;
+	margin-right: 10px
+}
+.val{
+	width: 400px;
+	height: 400px;
+}
+.f_l{
+	float: left;
+}
+.clear:after{
+	content: ""；
+	clear:both;
+}
+</style>
+	
+</head>
+<body>
+
+<div class="clear">
+<div class="map f_l" id="mapid" style=""></div>
+<textarea class="val f_l" id='id'></textarea>
+<div>
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+<script>
+	// 默认中心为天安门
+	var mymap = L.map('mapid').setView([39.915168, 116.403875], 13);
+	// 比例尺在右上角
+	var scaleControl = L.control.scale({
+		position: 'topright'
+	});
+
+	mymap.addControl(scaleControl);
+	// 调用指定背景图片，Zoom范围为9-15
+	L.tileLayer('http://map.zhtu.net:8080/r3t-basemap/{z}/{x}/{y}/tile.jpg',{
+		maxZoom: 15,
+		minZoom: 9
+	}).addTo(mymap);
+
+	// 暂存点击的坐标数组
+	var line = [];
+	// 获取元素，赋值坐标
+	var textarea=document.getElementById("id");
+	// 关闭默认双击事件
+	mymap.off('dblclick')
+	// 重新绑定双击事件，放置marker，显示坐标，画线，记录坐标数组
+	mymap.on('dblclick', function(e){
+		var marker = L.marker([e.latlng.lat, e.latlng.lng])
+					  .addTo(mymap)
+					  .bindPopup(e.latlng.toString())
+					  .openPopup();
+		line.push(e.latlng);
+		// 划线
+		var polyline = L.polyline(line).addTo(mymap);
+		str="";
+		if(line.length>0){
+			for(var i=0,len=line.length;i<len;i++){
+				str+="Lat: "+line[i].lat+", Lng: "+line[i].lng+"\n";
+			}
+		}
+		textarea.value=str;
+	});
+</script>
+</body>
+</html>
